@@ -210,3 +210,49 @@ export const getArcGISCSVURL = async function(serverNumber, dashboardId, layerNa
   const { serviceItemId } = layerMetadata;
   return `https://opendata.arcgis.com/datasets/${serviceItemId}_0.csv`;
 };
+
+/**
+ * Get the URL for the CSV data from an ArcGIS dashboard
+ * @param {*} dashboardId the ID of the dashboard
+ * @param {*} widgetName the name of the widget in the manifest
+ *
+ * The dashboardId is passed to the iframe that renders URL.  For example, 
+ *   If you have https://maps.arcgis.com/apps/opsdashboard/index.html#/ec4bffd48f7e495182226eee7962b422 is 
+ *   dashboardId = ec4bffd48f7e495182226eee7962b422
+ *
+ * To get the widgetName, load the manifest, reformat it, and search for a widget that has a caption
+ * that matches the title of table shown in the UI.  The caption is HTML but some places put images 
+ * instead of text so we should the name when scraping.  For example,
+ *    https://maps.arcgis.com/sharing/rest/content/items/ec4bffd48f7e495182226eee7962b422/data?f=json
+ * has a widget named 'COVID-19 Cases by County' which has a datasourceId = 24f4fcf164ad4b4280f08c8939dd5dc7
+ *
+ *
+ */
+export const getArcGISCSVURL_NEW = async function(dashboardId, widgetName) {
+
+  // 1. get the full manifest
+  const dashboardManifest  = await json(`https://maps.arcgis.com/sharing/rest/content/items/${dashboardId}/data?f=json`);
+
+  const { orgId } = dashboardManifest;
+  
+  // 2. find the datasourceID for the target 
+  const datasourceId = findArcGISFeatureDataSourceIDByName(dashboardManifest, widgetName)
+
+  // 3. get the layerName and url from the data source
+  const sourceInfo = await json(`https://maps.arcgis.com/sharing/rest/content/items/${datasourceId}?f=json`)
+  const layerName  = sourceInfo.name
+  const serverName  = sourceInfo.url.substring(0, 28)
+  if (!serverName.endsWith(".com")) throw new Error("Could not parse server name")
+
+  // 4. get the serviceItemId for the layer.
+  const layerMetadata = await json(
+    `${serverName}/${orgId}/arcgis/rest/services/${layerName}/FeatureServer/0?f=json`
+  );
+  const { serviceItemId } = layerMetadata;
+
+  // 5. build the URL for the content
+  return `https://opendata.arcgis.com/datasets/${serviceItemId}_0.csv`;
+};
+
+
+   
