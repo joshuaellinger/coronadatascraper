@@ -211,6 +211,27 @@ export const getArcGISCSVURL = async function(serverNumber, dashboardId, layerNa
   return `https://opendata.arcgis.com/datasets/${serviceItemId}_0.csv`;
 };
 
+
+/**
+ * Find data source id for a widget from the manifest
+ * 
+ * @param {*} dashboardId the ID of the dashboard
+ * @param {*} widgetName the name of the widget in the manifest
+ *
+ *
+ */
+ const findArcGISFeatureDataSourceIDByName = function(manifest, widgetName) {
+
+    for (const w of manifest.widgets) {
+      if (w.name == widgetName) {
+        if (w.datasets.length != 1) throw new Error("Expect only one dataset")
+        return w.datasets[0].itemId
+      } 
+    }
+    throw new Error("Cannot find widget")
+}
+
+
 /**
  * Get the URL for the CSV data from an ArcGIS dashboard
  * @param {*} dashboardId the ID of the dashboard
@@ -228,7 +249,7 @@ export const getArcGISCSVURL = async function(serverNumber, dashboardId, layerNa
  *
  *
  */
-export const getArcGISCSVURL_NEW = async function(dashboardId, widgetName) {
+export const getArcGISCSVURLByWidgetName = async function(dashboardId, widgetName) {
 
   // 1. get the full manifest
   const dashboardManifest  = await json(`https://maps.arcgis.com/sharing/rest/content/items/${dashboardId}/data?f=json`);
