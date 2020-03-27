@@ -252,17 +252,21 @@ export const getArcGISCSVURL = async function(serverNumber, dashboardId, layerNa
 export const getArcGISCSVURLByWidgetName = async function(dashboardId, widgetName) {
 
   // 1. get the full manifest
-  const dashboardManifest  = await json(`https://maps.arcgis.com/sharing/rest/content/items/${dashboardId}/data?f=json`);
+  const dashboardManifestFull  = await json(`https://maps.arcgis.com/sharing/rest/content/items/${dashboardId}/data?f=json`);
 
-  const { orgId } = dashboardManifest;
-  
   // 2. find the datasourceID for the target 
-  const datasourceId = findArcGISFeatureDataSourceIDByName(dashboardManifest, widgetName)
+  const datasourceId = findArcGISFeatureDataSourceIDByName(dashboardManifestFull, widgetName)
+  if (!datasourceId) throw new Error("Missing datasourceId")
 
-  // 3. get the layerName and url from the data source
+  // 3. get the orgID, layerName, and url from the data source
   const sourceInfo = await json(`https://maps.arcgis.com/sharing/rest/content/items/${datasourceId}?f=json`)
+  const orgId  = sourceInfo.orgId;
   const layerName  = sourceInfo.name
   const serverName  = sourceInfo.url.substr(0, 28)
+
+  // error checks...
+  if (!orgId) throw new Error("Missing orgID")
+  if (!layerName) throw new Error("Missing layerName")
   if (!serverName.endsWith(".com")) throw new Error("Could not parse server name")
 
   // 4. get the serviceItemId for the layer.
