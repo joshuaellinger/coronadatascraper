@@ -13,7 +13,7 @@ https://coronadatascraper.com/
 
 First, [fork the repository](https://github.com/lazd/coronadatascraper/fork) so you're ready to contribute back.
 
-Before following these instructions, install [yarn](https://classic.yarnpkg.com/en/docs/install/).
+Before following these instructions, install [node](https://nodejs.org/en/download/) and [yarn](https://classic.yarnpkg.com/en/docs/install/).
 
 ##### 1. Clone, init submodules, and add upstream
 
