@@ -262,7 +262,7 @@ export const getArcGISCSVURLByWidgetName = async function(dashboardId, widgetNam
   // 3. get the layerName and url from the data source
   const sourceInfo = await json(`https://maps.arcgis.com/sharing/rest/content/items/${datasourceId}?f=json`)
   const layerName  = sourceInfo.name
-  const serverName  = sourceInfo.url.substring(0, 28)
+  const serverName  = sourceInfo.url.substr(0, 28)
   if (!serverName.endsWith(".com")) throw new Error("Could not parse server name")
 
   // 4. get the serviceItemId for the layer.
