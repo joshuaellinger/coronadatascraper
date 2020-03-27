@@ -225,7 +225,7 @@ export const getArcGISCSVURL = async function(serverNumber, dashboardId, layerNa
     for (const w of manifest.widgets) {
       if (w.name == widgetName) {
         if (w.datasets.length != 1) throw new Error("Expect only one dataset")
-        return w.datasets[0].itemId
+        return w.datasets[0].dataSource.itemId
       } 
     }
     throw new Error("Cannot find widget")
